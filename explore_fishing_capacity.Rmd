@@ -139,3 +139,65 @@ shinyApp(ui = ui, server = server)
 
 
 ```
+
+Add to above:  total relative error on each plot.
+
+Calculate total relative error  across all years: sum (1 - ratio of predicted/observed) for Number of Vessels, Gross Tonnage, and Power.
+
+```{r}
+#multimodel mean & sd
+rel_effort_error<-effort %>% group_by(Region, Country,Sector,Gear, Length_Category) %>%
+  summarise(total_errNV = sum(NVerr), total_errGT = sum(GTerr),total_errP=sum(Perr),mean_errNV = mean(NVerr), mean_errGT = mean(GTerr),mean_errP=mean(Perr))
+print(rel_effort_error)
+```
+
+Create Plots for Mean Relative Error across all years
+
+```{r}
+
+filtered_data<-subset(rel_effort_error, Sector %in% "UP") # I, UP, or APW
+library(viridis)
+
+p1<-ggplot(filtered_data, aes(x=Gear, y=Country, fill = mean_errNV)) +
+  geom_tile(color="white", size=0.1) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1,size=6),axis.text.y = element_text(size=3)
+        ,strip.text.y = element_blank()) +  #remove facet bar on y
+scale_fill_viridis(name="Mean Relative Error") +
+#scale_fill_distiller(palette = "YlGnBu") +
+  ggtitle("Mean error for Number of Vessels (1-  predicted/observed)") +
+  facet_grid(rows = vars(filtered_data$Region),
+             cols = vars(filtered_data$Length_Category), scales = "free", space="free_y") 
+
+  ggsave("heatmap_NVerr_UP.tiff",p1,device = "tiff",width=7,height=10)
+
+
+p2<-ggplot(filtered_data, aes(x=Gear, y=Country, fill = mean_errGT)) +
+  geom_tile(color="white", size=0.1) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1,size=6),axis.text.y = element_text(size=3)
+        ,strip.text.y = element_blank()) +  #remove facet bar on y
+scale_fill_viridis(name="Mean Relative Error") +
+#scale_fill_distiller(palette = "YlGnBu") +
+  ggtitle("Mean error for Gross Tonnage (1-  predicted/observed)") +
+  facet_grid(rows = vars(filtered_data$Region),
+             cols = vars(filtered_data$Length_Category), scales = "free", space="free_y") 
+
+  ggsave("heatmap_GTerr_UP.tiff",p2,device = "tiff",width=7,height=10)
+
+  
+  p3<-ggplot(filtered_data, aes(x=Gear, y=Country, fill = mean_errP)) +
+  geom_tile(color="white", size=0.1) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1,size=6),axis.text.y = element_text(size=3)
+        ,strip.text.y = element_blank()) +  #remove facet bar on y
+scale_fill_viridis(name="Mean Relative Error") +
+#scale_fill_distiller(palette = "YlGnBu") +
+  ggtitle("Mean error for Power (1-  predicted/observed)") +
+  facet_grid(rows = vars(filtered_data$Region),
+             cols = vars(filtered_data$Length_Category), scales = "free", space="free_y") 
+
+  ggsave("heatmap_Perr_UP.tiff",p3,device = "tiff",width=7,height=10)
+
+  
+
+
+```
+
