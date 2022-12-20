@@ -2,7 +2,10 @@
 title: "Explore Fishing Capacity Data"
 author: "Julia Blanchard"
 date: "2022-12-19"
-output: html
+output: 
+  github_document:
+    toc: true
+    html_preview: false
 ---
 
 ## Access data
